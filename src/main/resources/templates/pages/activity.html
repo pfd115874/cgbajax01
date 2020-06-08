@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Activity</title>
+    <!-- 最新版本的 Bootstrap 核心 CSS 文件 -->
+    <!-- jQuery (Bootstrap 的所有 JavaScript 插件都依赖 jQuery，所以必须放在前边) -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+    <script type="text/javascript" src="/bootstrap/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css" >
+</head>
+<body>
+    <h1>The Activity</h1>
+<div class="container">
+    <div class="center-block">
+        <BUTTON type="button" CLASS="btn btn-primary" onclick="javascript:location.href='activityEditUI'">添加</BUTTON>
+        <!-- Button trigger modal -->
+        <button type="button" class="btn btn-primary"
+                data-toggle="modal" onclick="doShowAddDialog()">模态框方式添加</button>
+
+        <!-- Modal -->
+        <div class="modal fade" id="myModal" tabindex="-1" role="dialog"
+             aria-labelledby="myModalLabel">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal"
+                                aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <h4 class="modal-title" id="myModalLabel">Modal title</h4>
+                    </div>
+                    <div class="modal-body">
+                        <form id="atyFormId" class="form-horizontal" action="insertByIdUI" method="post">
+                            <input type="hidden" name="id" id="atyId">  <!--修改操作的时候不会直接新增一行数据-->
+                            <div class="form-group">
+                                <label for="titleId" class="col-sm-2 control-label">title</label>
+                                <div class="col-sm-10">
+                                    <input type="text" class="form-control" name="title"
+                                           id="titleId" placeholder="title">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="categoryId" class="col-sm-2 control-label">category</label>
+                                <div class="col-sm-10">
+                                    <input type="text" class="form-control" name="category"
+                                           id="categoryId" placeholder="category">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="startTimeId" class="col-sm-2 control-label">startTime</label>
+                                <div class="col-sm-10">
+                                    <input type="text" class="form-control" name="startTime"
+                                           id="startTimeId" placeholder="yyyy/MM/dd">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="endTimeId" class="col-sm-2 control-label">endTime</label>
+                                <div class="col-sm-10">
+                                    <input type="text" class="form-control" name="endTime"
+                                           id="endTimeId" placeholder="yyyy/MM/dd">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="remarkId" class="col-sm-2 control-label">remark</label>
+                                <div class="col-sm-10">
+								<textarea class="form-control" id="remarkId" name="remark"
+                                          placeholder="remark"></textarea>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" onclick="doSaveActivity()">Save changes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+<table class="table">
+
+    <thead>
+    <tr>
+        <th>id</th>
+        <th>title</th>
+        <th>category</th>
+        <th>startTime</th>
+        <th>endTime</th>
+        <th>remark</th>
+        <th>state</th>
+        <th>createdTime</th>
+        <th>createdUser</th>
+        <th colspan="2" >operation</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="g:${list}">
+        <td th:text="${g.id}"></td>
+        <td th:text="${g.title}"></td>
+        <td th:text="${g.category}"></td>
+        <td th:text="${#dates.format(g.startTime, 'yyyy/MM/dd HH:mm')}"></td>
+        <td th:text="${#dates.format(g.endTime, 'yyyy/MM/dd HH:mm')}"></td>
+        <td th:text="${g.remark}"></td>
+        <td th:text="${g.state}"></td>
+        <td th:text="${#dates.format(g.createdTime, 'yyyy/MM/dd HH:mm')}"></td>
+        <td th:text="${g.createdUser}"></td>
+        <!-- <td th:text="${g.createdTime}"></td>-->
+        <!--<td th:text="${#dates.format(g.createdTime, 'yyyy/MM/dd HH:mm')}"></td>-->
+        <!--<td><a th:href="@{/activity/deleteByIdUI(id=${g.id})}">delete</a></td>-->
+        <td><button class="btn btn-danger" th:onclick="doDeleteById([[${g.id}]])">删除</button>
+        <button class="btn btn-warning" th:onclick="doLoadById([[${g.id}]])">更新</button></td>
+    </tr>
+
+    </tbody>
+</table>
+</div>
+</div>
+    <!-- 假如要在js中获取thymeaf表达式中的数据script标签内部需要th:inline="javascript" -->
+    <script th:inline="javascript">
+        $(function(){//页面加载完成以后执行
+            var aty=[[${aty}]];//在js中获取thyemeaf表达式中的内容
+            //console.log("aty",aty); 在浏览器输出相关内容
+            if(aty){
+                doInitEditFormData(aty)
+            }
+        });
+        function doInitEditFormData(aty){
+            $("#atyId").val(aty.id);
+            $("#titleId").val(aty.title);
+            $("#categoryId").val(aty.category);
+            $("#startTimeId").val(aty.startTime);
+            $("#endTimeId").val(aty.endTime);
+            $("#remarkId").text(aty.remark);
+            $('#myModal').modal('show');
+        }
+        //呈现添加模态框
+        function doShowAddDialog(){
+            $("#atyId").val('');
+            $("#titleId").val('');
+            $("#categoryId").val('');
+            $("#startTimeId").val('');
+            $("#endTimeId").val('');
+            $("#remarkId").text('');
+            //显示模态框
+            $('#myModal').modal('show');
+        }
+        function doLoadById(id){
+            location.href="doFindById?id="+id;
+        }
+
+
+        function doDeleteById(id) {
+            if(!confirm("确定删除吗"))return;
+           // location.href="deleteByIdUI?id="+id;
+            var  url="deleteByIdUI";
+            var params="id="+id;
+           // var btnObj=$(this);//获取被点击的对象
+            var callback=function (result) {
+                alert(result);
+               // btnObj.parents("tr").remove();
+            };
+            doAjaxGet(url,params,callback);
+        }
+
+
+        function doSaveActivity() {
+            // alert("save activity");
+            //执行表单提交操作(基于js方式提交表单)
+            $("#atyFormId").submit();
+            //关闭模态框
+            $('#myModal').modal('hide');
+        }
+
+        /**
+         * 基于此函数向服务端发起ajax Get请求
+         */
+        function doAjaxGet(url,params,callback) {
+            //1.创建xhr对象
+            var xhr=new XMLHttpRequest();
+            //2.设置Xhr对象的状态监听
+            xhr.onreadystatechange=function () {
+                if (xhr.readyState==4&&xhr.status==200){
+                    callback(xhr.responseText)
+                }
+            }
+            //3.创建一个连接
+            xhr.open("GET",url+"?"+params,true)
+            //4.发送请求
+            xhr.send(null);
+            //5.对响应结果进行处理(在回调函数中处理)
+        }
+
+    </script>
+
+</body>
+
+</html>
